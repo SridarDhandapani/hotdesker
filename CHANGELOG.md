@@ -2,6 +2,21 @@
 
 All notable changes to Hotdesker.
 
+## [4.0.3] — 2026-04-30
+
+### Fixed
+
+- Popup subtitle now reads the version from `manifest.json` at runtime via
+  `chrome.runtime.getManifest()`, so the version no longer needs to be
+  edited in two places per release.
+
+## [4.0.2] — 2026-04-30
+
+### Removed
+
+- Dropped the `tabs` permission. `activeTab` covers what we need and gives
+  users a cleaner permission story at install time.
+
 ## [4.0.1] — 2026-04-30
 
 ### Changed

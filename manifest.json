@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Hotdesker",
   "short_name": "Hotdesker",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "Bulk-book hot desks for the week ahead, in one click. Works with WeWork.",
   "permissions": ["activeTab", "scripting", "storage"],
   "host_permissions": [

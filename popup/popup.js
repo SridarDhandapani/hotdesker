@@ -1189,4 +1189,16 @@ chrome.runtime.onMessage.addListener((msg) => {
   }
 });
 
-document.addEventListener("DOMContentLoaded", loadConfig);
+// Render the version into the popup subtitle. Pulled from manifest.json
+// at runtime so the two never drift out of sync.
+function renderVersion() {
+  const sub = $("subtitle");
+  if (!sub) return;
+  const v = chrome.runtime.getManifest().version;
+  sub.textContent = `Bulk-book your week of desks · v${v}`;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderVersion();
+  loadConfig();
+});
