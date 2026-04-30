@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hotdesker</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <img class="logo" src="../icons/logo-header.svg" alt="Hotdesker" />
+    <div class="header-text">
+      <h1>Hotdesker</h1>
+      <p class="subtitle">Bulk-book your week of desks · v4.0.1</p>
+    </div>
+  </header>
+
+  <!-- Checking prerequisites: shown briefly on open while we verify the
+       active tab + auth token. -->
+  <div id="checkingScreen" class="checking">
+    <div class="spinner" aria-hidden="true"></div>
+    <p class="checking-text">Checking WeWork session…</p>
+  </div>
+
+  <!-- Info screen: shown when the active tab isn't members.wework.com or
+       the auth token isn't readable. Hides the main UI until ready. -->
+  <div id="notReadyScreen" class="not-ready" hidden>
+    <div class="not-ready-icon">
+      <img src="../icons/logo-on-light.svg" alt="" />
+    </div>
+    <h2 class="not-ready-title" id="notReadyTitle">Open WeWork to get started</h2>
+    <p class="not-ready-body" id="notReadyBody">
+      This extension works alongside the WeWork member portal. Open
+      <strong>members.wework.com</strong>, sign in, and try again.
+    </p>
+    <div class="not-ready-actions">
+      <button type="button" class="primary" id="openWeworkBtn">Open WeWork</button>
+      <button type="button" class="secondary" id="recheckBtn">Check again</button>
+    </div>
+  </div>
+
+  <main id="mainPanel" hidden>
+    <section class="config-section">
+      <p class="hint">Tap a day, then pick a location. Tap again to change.</p>
+      <div class="city-row">
+        <button type="button" id="cityBtn" class="city-btn">
+          <span class="city-label" id="cityLabel">London</span>
+          <span class="city-caret">▾</span>
+        </button>
+      </div>
+      <div class="cal-nav">
+        <button type="button" id="prevMonth" class="nav-btn" aria-label="Previous month">‹</button>
+        <span id="monthLabel"></span>
+        <button type="button" id="nextMonth" class="nav-btn" aria-label="Next month">›</button>
+      </div>
+      <div class="calendar" id="calendar"></div>
+      <p class="hint" id="selectedSummary">No days assigned.</p>
+      <div class="legend" id="legend"></div>
+      <div class="cancel-mode-row">
+        <button type="button" id="cancelModeBtn" class="link-btn-muted">Select to cancel bookings…</button>
+      </div>
+      <div class="cancel-bar" id="cancelBar" hidden>
+        <span id="cancelBarLabel">0 selected</span>
+        <button type="button" id="cancelClearBtn" class="link-btn-muted">Clear</button>
+        <button type="button" id="cancelGoBtn" class="link-btn">Cancel selected…</button>
+      </div>
+    </section>
+
+    <section class="config-section">
+      <div class="field">
+        <label>
+          <input type="checkbox" id="dryRun" checked />
+          Dry run (call /quote only, skip the actual booking)
+        </label>
+      </div>
+    </section>
+
+    <div class="progress-row" id="progressRow" hidden>
+      <div class="progress-label" id="progressLabel">0 / 0</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="actions">
+      <button id="startBtn" class="primary">Start booking</button>
+      <button id="stopBtn" class="secondary" disabled>Stop</button>
+    </div>
+
+    <div class="status" id="status">
+      <p class="status-line">Ready when you are.</p>
+    </div>
+  </main>
+
+  <!-- Location picker modal -->
+  <div class="modal-backdrop" id="pickerBackdrop" hidden>
+    <div class="modal" id="pickerModal" role="dialog" aria-modal="true" aria-labelledby="pickerTitle">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="pickerTitle">Pick a location</div>
+          <div class="modal-subtitle" id="pickerSubtitle"></div>
+        </div>
+        <button type="button" class="modal-close" id="pickerClose" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="location-search-row">
+          <input type="text" id="locationSearch" placeholder="Search locations…" />
+        </div>
+        <div id="locationList" class="location-list" role="listbox"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="removeAssignBtn" class="link-btn" hidden>Remove this date</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Booking details modal (shown when tapping an already-booked day) -->
+  <div class="modal-backdrop" id="detailsBackdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="detailsTitle">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="detailsTitle">Existing booking</div>
+          <div class="modal-subtitle" id="detailsSubtitle"></div>
+        </div>
+        <button type="button" class="modal-close" id="detailsClose" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="details-grid" id="detailsGrid"></div>
+      </div>
+      <div class="modal-footer details-footer">
+        <button type="button" id="detailsCloseBtn" class="link-btn-muted">Close</button>
+        <button type="button" id="detailsCancelBtn" class="link-btn">Cancel this booking…</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation dialog (used for cancel-1 and cancel-many) -->
+  <div class="modal-backdrop" id="confirmBackdrop" hidden>
+    <div class="modal modal-narrow" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="confirmTitle">Confirm cancellation</div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <p class="confirm-msg" id="confirmMsg"></p>
+        <ul class="confirm-list" id="confirmList"></ul>
+        <p class="confirm-warning">This can't be undone from here.</p>
+      </div>
+      <div class="modal-footer confirm-footer">
+        <button type="button" id="confirmCancelBtn" class="link-btn-muted">Keep them</button>
+        <button type="button" id="confirmGoBtn" class="danger-btn">Cancel bookings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- City picker modal -->
+  <div class="modal-backdrop" id="cityBackdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cityTitle">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="cityTitle">Pick a city</div>
+          <div class="modal-subtitle">Switches the locations list</div>
+        </div>
+        <button type="button" class="modal-close" id="cityClose" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="location-search-row">
+          <input type="text" id="citySearch" placeholder="Search cities…" />
+        </div>
+        <div id="cityList" class="location-list" role="listbox">
+          <div class="loc-empty">Loading…</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="cityAutoBtn" class="link-btn-muted">Use auto-detect</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
