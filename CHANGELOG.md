@@ -2,6 +2,23 @@
 
 All notable changes to Hotdesker.
 
+## [4.0.4] — 2026-04-30
+
+### Fixed
+
+- Removing a server-side favorite that was already present when the popup
+  opened now works. The unfavorite endpoint expects the favorite's
+  numeric Yardi row id (`Hmy`) as `Id`; we were sending the entry's UUID
+  `Id` field and getting a 400.
+
+### Removed
+
+- Dropped the `scripting` and `activeTab` permissions. We never call
+  `chrome.scripting`; static content_scripts handle injection. And
+  `activeTab` was redundant with our explicit `members.wework.com` host
+  permission. Resolves a Webstore "requesting but not using" violation
+  and narrows the install-time permission prompt.
+
 ## [4.0.3] — 2026-04-30
 
 ### Fixed

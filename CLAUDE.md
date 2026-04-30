@@ -104,7 +104,11 @@ response). The successful response is the literal string `true`.
 Favorites: there's a single endpoint
 (`/workplaceone/api/recent-and-favorite/mark-as-favorite-location`)
 for both add and remove. The body's `IsDeleted` boolean toggles which.
-Removes also need the favorite's numeric `Id` from the favorites list.
+Removes also need the favorite's numeric id as `Id` in the body — and
+the field to read from the favorites list is **`Hmy`** (Yardi row id,
+System.Int64), NOT the list entry's own `Id` field which is a UUID.
+Sending the UUID gets a 400 with a JSON-to-Int64 conversion error.
+The add response returns the same numeric as `FavoriteId`.
 
 ## Auth
 

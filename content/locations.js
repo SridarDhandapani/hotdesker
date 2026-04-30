@@ -136,8 +136,9 @@ window.WW_LOCATIONS = (() => {
   // point at a specific reservable; those don't apply to desk-booking. We
   // filter to SpaceType 0 (desks).
   //
-  // We need the favoriteId (`Id`) to unfavorite — the unfavorite endpoint
-  // takes the same body shape as add-favorite plus `Id` and IsDeleted: true.
+  // The unfavorite endpoint wants the favorite's numeric `Hmy` (Yardi row id,
+  // System.Int64) as `Id` in the body — NOT the entry's UUID `Id` field.
+  // Sending the UUID gets a 400 with a JSON conversion error.
   async function fetchFavorites(authHeaders) {
     try {
       const res = await fetch(FAVORITES_URL, {
@@ -159,7 +160,7 @@ window.WW_LOCATIONS = (() => {
         const spaceType = f.SpaceType ?? f.spaceType;
         if (spaceType !== 0) continue;
         const locationId = f.LocationId || f.locationId;
-        const favoriteId = f.Id ?? f.id;
+        const favoriteId = f.Hmy ?? f.hmy;
         if (locationId && favoriteId != null) {
           favorites.set(locationId, favoriteId);
         }
