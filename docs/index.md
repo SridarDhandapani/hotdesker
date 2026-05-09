@@ -6,7 +6,7 @@ title: Hotdesker
 
 Bulk-book hot desks for the week ahead, in one click. Built for WeWork's member portal.
 
-[Install from the Chrome Web Store →](#) (coming soon)
+[Install from the Chrome Web Store →](https://chromewebstore.google.com/detail/hotdesker/hobjmhjbmhgocoffijifcenldiciclpc)
 
 [Source on GitHub →](https://github.com/SridarDhandapani/hotdesker)
 

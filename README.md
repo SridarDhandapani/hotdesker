@@ -45,7 +45,9 @@ extension reads it from the live page rather than asking you to paste it.
 
 ## Install
 
-Until it's on the Webstore:
+[Install from the Chrome Web Store](https://chromewebstore.google.com/detail/hotdesker/hobjmhjbmhgocoffijifcenldiciclpc).
+
+Or, to run from source:
 
 1. Clone or download this folder.
 2. Visit `chrome://extensions`.
