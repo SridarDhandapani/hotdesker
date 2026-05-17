@@ -17,6 +17,7 @@ export default {
     "SCREENSHOTS.md",
     "docs/**",
     "dist/**",
+    "promo/**",
     ".DS_Store",
     "web-ext-config.mjs",
     "web-ext-artifacts/**",

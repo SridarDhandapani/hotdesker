@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hotdesker — bulk-book your week of desks</title>
+  <meta name="description" content="A browser extension for Chrome and Firefox that bulk-books hot desks via the WeWork member portal. Tap days, pick locations, click Start." />
+  <meta name="theme-color" content="#f3eee3" />
+  <script>
+    try {
+      var t = localStorage.getItem('theme');
+      if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
+  <meta property="og:title" content="Hotdesker — bulk-book your week of desks" />
+  <meta property="og:description" content="Browser extension for Chrome and Firefox. Tap days, pick locations, click Start. Works with WeWork." />
+  <meta property="og:url" content="https://sridardhandapani.github.io/hotdesker/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://sridardhandapani.github.io/hotdesker/promo/og.png" />
+  <meta property="og:image:width" content="440" />
+  <meta property="og:image:height" content="280" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Hotdesker — bulk-book your week of desks" />
+  <meta name="twitter:description" content="Browser extension for Chrome and Firefox. Tap days, pick locations, click Start." />
+  <meta name="twitter:image" content="https://sridardhandapani.github.io/hotdesker/promo/og.png" />
+  <link rel="canonical" href="https://sridardhandapani.github.io/hotdesker/" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23f3eee3'/%3E%3Ctext x='16' y='23' text-anchor='middle' font-family='Georgia,serif' font-style='italic' font-size='22' fill='%23a8442a'%3Eh%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" />
+  <style>
+    :root {
+      --bg: #f3eee3;
+      --ink: #1a1612;
+      --muted: #6f6658;
+      --hair: rgba(26, 22, 18, 0.18);
+      --accent: #a8442a;
+      --grain-blend: multiply;
+      --grain-opacity: 0.14;
+      --grain-img: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.09 0 0 0 0 0.07 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      --serif: 'Newsreader', 'Iowan Old Style', Georgia, serif;
+      --display: 'Instrument Serif', 'Newsreader', Georgia, serif;
+      --mono: 'JetBrains Mono', 'SFMono-Regular', ui-monospace, Menlo, monospace;
+      color-scheme: light;
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #15110d;
+      --ink: #ede5d4;
+      --muted: #8d8478;
+      --hair: rgba(237, 229, 212, 0.18);
+      --accent: #d97a5e;
+      --grain-blend: screen;
+      --grain-opacity: 0.09;
+      --grain-img: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.93 0 0 0 0 0.9 0 0 0 0 0.83 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      color-scheme: dark;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #15110d;
+        --ink: #ede5d4;
+        --muted: #8d8478;
+        --hair: rgba(237, 229, 212, 0.18);
+        --accent: #d97a5e;
+        --grain-blend: screen;
+        --grain-opacity: 0.09;
+        --grain-img: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.93 0 0 0 0 0.9 0 0 0 0 0.83 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        color-scheme: dark;
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--serif);
+      font-size: 18px;
+      line-height: 1.55;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+      transition: background-color 320ms ease, color 320ms ease;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: var(--grain-img);
+      opacity: var(--grain-opacity);
+      pointer-events: none;
+      z-index: 1;
+      mix-blend-mode: var(--grain-blend);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body { transition: none; }
+    }
+
+    .page {
+      position: relative;
+      z-index: 2;
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 28px 44px 60px;
+    }
+
+    /* ─── masthead ─────────────────────────────────── */
+    .masthead {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--ink);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .masthead .lhs { display: flex; gap: 22px; flex-wrap: wrap; }
+    .masthead .star { color: var(--accent); }
+    .masthead .rhs {
+      display: flex;
+      align-items: baseline;
+      gap: 22px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .masthead .edition { color: var(--muted); }
+    .masthead a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px solid var(--hair);
+      transition: border-color 200ms ease, color 200ms ease;
+    }
+    .masthead a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .theme-toggle button {
+      background: none;
+      border: 0;
+      padding: 0;
+      margin: 0;
+      font: inherit;
+      letter-spacing: inherit;
+      text-transform: inherit;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color 200ms ease;
+    }
+    .theme-toggle button:hover,
+    .theme-toggle button:focus-visible { color: var(--ink); }
+    .theme-toggle button:focus-visible { outline: 1px dashed var(--accent); outline-offset: 3px; }
+    .theme-toggle button[aria-pressed="true"] { color: var(--accent); }
+    .theme-toggle .sep { color: var(--muted); opacity: 0.45; user-select: none; }
+
+    /* ─── hero ─────────────────────────────────────── */
+    .hero {
+      padding: 56px 0 28px;
+    }
+    .hero-art {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--hair);
+      transition: border-color 320ms ease;
+    }
+    :root[data-theme="dark"] .hero-art { border-color: transparent; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .hero-art { border-color: transparent; }
+    }
+
+    .hero-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 22px;
+      margin-top: 18px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .hero-meta .num {
+      font-family: var(--display);
+      font-style: italic;
+      font-size: 22px;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .intro {
+      max-width: 640px;
+      margin: 48px 0 110px;
+      font-size: 21px;
+      line-height: 1.5;
+      color: var(--ink);
+    }
+    .intro em { font-style: italic; color: var(--accent); }
+    .intro a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px solid var(--hair);
+      transition: border-color 200ms ease;
+    }
+    .intro a:hover { border-bottom-color: var(--accent); }
+
+    /* ─── sections ─────────────────────────────────── */
+    section {
+      padding: 26px 0 6px;
+      border-top: 1px solid var(--ink);
+    }
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 36px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    .section-head .sigil {
+      color: var(--accent);
+      font-family: var(--display);
+      font-size: 26px;
+      font-style: italic;
+      text-transform: none;
+      letter-spacing: 0;
+      line-height: 1;
+      transform: translateY(2px);
+    }
+    .section-head .count {
+      margin-left: auto;
+      color: var(--muted);
+    }
+
+    /* ─── install rows (work-style) ────────────────── */
+    .work {
+      display: grid;
+      grid-template-columns: 90px minmax(0, 1fr) 200px;
+      gap: 32px;
+      padding: 26px 0;
+      border-top: 1px dashed var(--hair);
+      align-items: baseline;
+    }
+    .work:first-of-type { border-top: 0; padding-top: 4px; }
+    .work .idx {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .work h3 {
+      font-family: var(--display);
+      font-weight: 400;
+      font-style: italic;
+      font-size: 34px;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .work h3 a {
+      color: var(--ink);
+      text-decoration: none;
+      background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+      padding-bottom: 3px;
+      transition: background-size 360ms ease;
+    }
+    .work h3 a:hover { background-size: 100% 1px; }
+    .work h3 .ext {
+      font-family: var(--mono);
+      font-size: 14px;
+      font-style: normal;
+      color: var(--accent);
+      margin-left: 10px;
+      display: inline-block;
+      transition: transform 220ms ease;
+    }
+    .work h3 a:hover .ext { transform: translate(3px, -3px); }
+    .work p {
+      max-width: 500px;
+      color: var(--ink);
+    }
+    .work .tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: right;
+      line-height: 1.8;
+    }
+
+    /* ─── gallery (feature tiles) ──────────────────── */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 28px 32px;
+      padding-top: 4px;
+    }
+    .tile {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .tile img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--hair);
+      transition: border-color 320ms ease;
+    }
+    :root[data-theme="dark"] .tile img { border-color: transparent; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .tile img { border-color: transparent; }
+    }
+    .tile figcaption {
+      display: grid;
+      grid-template-columns: 90px minmax(0, 1fr);
+      gap: 16px;
+      align-items: baseline;
+    }
+    .tile .lbl {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .tile .cap {
+      font-family: var(--display);
+      font-style: italic;
+      font-size: 22px;
+      line-height: 1.2;
+      color: var(--ink);
+    }
+    .tile .cap small {
+      display: block;
+      font-family: var(--serif);
+      font-style: normal;
+      font-size: 15px;
+      line-height: 1.4;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ─── elsewhere ────────────────────────────────── */
+    .row {
+      display: grid;
+      grid-template-columns: 90px minmax(0, 1fr) auto;
+      gap: 32px;
+      padding: 18px 0;
+      border-top: 1px dashed var(--hair);
+      align-items: baseline;
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: 0.04em;
+    }
+    .row:first-of-type { border-top: 0; }
+    .row .lbl {
+      color: var(--muted);
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+    }
+    .row a {
+      color: var(--ink);
+      text-decoration: none;
+      border-bottom: 1px solid var(--hair);
+      padding-bottom: 2px;
+      transition: color 200ms ease, border-color 200ms ease;
+    }
+    .row a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+    .row .handle {
+      font-family: var(--display);
+      font-style: italic;
+      font-size: 18px;
+      color: var(--muted);
+      letter-spacing: 0;
+    }
+
+    /* ─── footer ───────────────────────────────────── */
+    footer {
+      margin-top: 90px;
+      padding-top: 18px;
+      border-top: 1px solid var(--ink);
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    footer .colophon em {
+      font-family: var(--display);
+      font-style: italic;
+      font-size: 14px;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--accent);
+    }
+
+    /* ─── reveal ───────────────────────────────────── */
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal { animation: rise 900ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+    .d1 { animation-delay: 40ms; }
+    .d2 { animation-delay: 180ms; }
+    .d3 { animation-delay: 340ms; }
+    .d4 { animation-delay: 500ms; }
+    .d5 { animation-delay: 660ms; }
+    .d6 { animation-delay: 820ms; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { animation: none !important; }
+    }
+
+    /* ─── mobile ───────────────────────────────────── */
+    @media (max-width: 760px) {
+      .page { padding: 22px 22px 50px; }
+      .masthead { font-size: 10px; gap: 12px; flex-wrap: wrap; row-gap: 10px; }
+      .masthead .lhs { gap: 14px; }
+      .masthead .rhs { gap: 14px; width: 100%; justify-content: flex-start; }
+      .theme-toggle { gap: 6px; margin-left: auto; }
+      .hero { padding: 32px 0 18px; }
+      .hero-meta { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .intro { font-size: 19px; margin: 36px 0 70px; }
+      .work { grid-template-columns: 60px 1fr; gap: 18px; }
+      .work .tag { grid-column: 2; text-align: left; margin-top: 8px; }
+      .work h3 { font-size: 28px; }
+      .gallery { grid-template-columns: 1fr; gap: 24px; }
+      .tile figcaption { grid-template-columns: 70px 1fr; gap: 12px; }
+      .row { grid-template-columns: 80px 1fr; }
+      .row .handle { display: none; }
+      footer { flex-direction: column; gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header class="masthead reveal d1">
+      <div class="lhs">
+        <span>Hotdesker</span>
+        <span class="star">✦</span>
+        <span>for WeWork</span>
+      </div>
+      <div class="rhs">
+        <span class="edition">v4.1.0 · MMXXVI</span>
+        <span class="theme-toggle" role="group" aria-label="Theme">
+          <button type="button" data-set="auto">Auto</button>
+          <span class="sep" aria-hidden="true">·</span>
+          <button type="button" data-set="light">Light</button>
+          <span class="sep" aria-hidden="true">·</span>
+          <button type="button" data-set="dark">Dark</button>
+        </span>
+      </div>
+    </header>
+
+    <section class="hero reveal d2" style="border-top:0;">
+      <img class="hero-art"
+           src="promo/marquee.png"
+           width="1400" height="560"
+           alt="Hotdesker — bulk-book your week of desks" />
+      <div class="hero-meta">
+        <span class="num">§01</span>
+        <span>Index · Last revised May MMXXVI</span>
+      </div>
+    </section>
+
+    <p class="intro reveal d3">
+      Tap days on a calendar, pick a location for each, and click <em>Start</em>. Hotdesker books them sequentially with a live progress bar — different locations on different days are fine. Cancel a single booking by tapping its day, or bulk-cancel several at once.
+    </p>
+
+    <section class="reveal d4">
+      <div class="section-head">
+        <span class="sigil">§</span>
+        <span>Install</span>
+        <span class="count">02 · stores</span>
+      </div>
+
+      <article class="work">
+        <div class="idx">Chrome</div>
+        <div>
+          <h3><a href="https://chromewebstore.google.com/detail/hotdesker/hobjmhjbmhgocoffijifcenldiciclpc">Chrome Web Store<span class="ext">↗</span></a></h3>
+          <p>Chrome, Edge, Brave, and other Chromium-based browsers.</p>
+        </div>
+        <div class="tag">MV3 · v4.1.0</div>
+      </article>
+
+      <article class="work">
+        <div class="idx">Firefox</div>
+        <div>
+          <h3><a href="https://addons.mozilla.org/firefox/addon/hotdesker/">Mozilla Add-ons<span class="ext">↗</span></a></h3>
+          <p>Firefox 140 and later. Signed by Mozilla.</p>
+        </div>
+        <div class="tag">XPI · v4.1.0</div>
+      </article>
+    </section>
+
+    <section class="reveal d5">
+      <div class="section-head">
+        <span class="sigil">§</span>
+        <span>What it does</span>
+        <span class="count">04 · features</span>
+      </div>
+
+      <div class="gallery">
+        <figure class="tile">
+          <img src="promo/01-headliner.png" width="640" height="400" alt="The popup shows a calendar with several days highlighted and a Start booking button." />
+          <figcaption>
+            <span class="lbl">No. 01</span>
+            <span class="cap">Plan the week.<small>Tap days, pick a location for each, click Start.</small></span>
+          </figcaption>
+        </figure>
+
+        <figure class="tile">
+          <img src="promo/02-favorites.png" width="640" height="400" alt="The location picker with favorited buildings pinned to the top." />
+          <figcaption>
+            <span class="lbl">No. 02</span>
+            <span class="cap">Favorites, live.<small>Hearts mirror the WeWork app — set them anywhere.</small></span>
+          </figcaption>
+        </figure>
+
+        <figure class="tile">
+          <img src="promo/03-progress.png" width="640" height="400" alt="A live progress log shows per-day booking status with a 3 of 4 progress bar." />
+          <figcaption>
+            <span class="lbl">No. 03</span>
+            <span class="cap">Watch it work.<small>Live progress and per-day status. Stop any time.</small></span>
+          </figcaption>
+        </figure>
+
+        <figure class="tile">
+          <img src="promo/04-cancel.png" width="640" height="400" alt="Two booked days are selected for bulk cancellation, with a Cancel selected button visible." />
+          <figcaption>
+            <span class="lbl">No. 04</span>
+            <span class="cap">Cancel cleanly.<small>One day, or several at once.</small></span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="reveal d6">
+      <div class="section-head">
+        <span class="sigil">§</span>
+        <span>Elsewhere</span>
+      </div>
+
+      <div class="row">
+        <span class="lbl">Source</span>
+        <span><a href="https://github.com/SridarDhandapani/hotdesker">github.com/SridarDhandapani/hotdesker</a></span>
+        <span class="handle">MIT licensed</span>
+      </div>
+      <div class="row">
+        <span class="lbl">Privacy</span>
+        <span><a href="privacy/">No data leaves your machine</a></span>
+        <span class="handle">the full policy</span>
+      </div>
+      <div class="row">
+        <span class="lbl">Changelog</span>
+        <span><a href="https://github.com/SridarDhandapani/hotdesker/blob/main/CHANGELOG.md">Release history</a></span>
+        <span class="handle">what changed</span>
+      </div>
+    </section>
+
+    <footer class="reveal d6">
+      <span class="colophon">Hand-built in London <em>&amp;</em> served from GitHub Pages</span>
+      <span>© Sridar Dhandapani · MMXXVI</span>
+    </footer>
+
+  </main>
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var meta = document.querySelector('meta[name="theme-color"]');
+      var btns = document.querySelectorAll('.theme-toggle button[data-set]');
+      var mql = window.matchMedia('(prefers-color-scheme: dark)');
+
+      function effective() {
+        var t = root.dataset.theme;
+        if (t === 'light' || t === 'dark') return t;
+        return mql.matches ? 'dark' : 'light';
+      }
+      function paint() {
+        var saved = root.dataset.theme || 'auto';
+        btns.forEach(function (b) {
+          b.setAttribute('aria-pressed', String(b.dataset.set === saved));
+        });
+        if (meta) meta.content = effective() === 'dark' ? '#15110d' : '#f3eee3';
+      }
+      btns.forEach(function (b) {
+        b.addEventListener('click', function () {
+          var v = b.dataset.set;
+          if (v === 'auto') {
+            delete root.dataset.theme;
+            try { localStorage.removeItem('theme'); } catch (e) {}
+          } else {
+            root.dataset.theme = v;
+            try { localStorage.setItem('theme', v); } catch (e) {}
+          }
+          paint();
+        });
+      });
+      mql.addEventListener ? mql.addEventListener('change', paint) : mql.addListener(paint);
+      paint();
+    })();
+  </script>
+</body>
+</html>

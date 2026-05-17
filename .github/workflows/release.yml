@@ -59,6 +59,7 @@ jobs:
             -x 'SCREENSHOTS.md' \
             -x 'docs/*' \
             -x 'dist/*' \
+            -x 'promo/*' \
             -x '*.DS_Store' \
             -x 'web-ext-config.mjs' \
             -x 'web-ext-artifacts/*' \
