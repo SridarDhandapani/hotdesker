@@ -14,6 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
       - name: Verify manifest version matches tag
         run: |
           TAG="${GITHUB_REF#refs/tags/v}"
@@ -32,11 +37,14 @@ jobs:
             node --check "$f"
           done
 
-      - name: Build zip
+      - name: Lint extension (Firefox / web-ext rules)
+        run: npx --yes web-ext@8 lint --source-dir .
+
+      - name: Build Chrome zip
         run: |
-          # Build a clean zip excluding dev artefacts. The Webstore upload
-          # should not include README, LICENSE, .github, .gitignore, or
-          # the listing copy.
+          # Build a clean zip excluding dev artefacts. Mirrors the
+          # ignoreFiles list in web-ext-config.mjs so the Chrome zip and
+          # Firefox xpi carry the same payload.
           mkdir -p dist
           zip -r "dist/hotdesker-${GITHUB_REF#refs/tags/}.zip" . \
             -x '.git/*' \
@@ -47,13 +55,32 @@ jobs:
             -x 'CHANGELOG.md' \
             -x 'CLAUDE.md' \
             -x 'WEBSTORE_LISTING.md' \
+            -x 'AMO_LISTING.md' \
             -x 'SCREENSHOTS.md' \
             -x 'docs/*' \
             -x 'dist/*' \
-            -x '*.DS_Store'
+            -x '*.DS_Store' \
+            -x 'web-ext-config.mjs' \
+            -x 'web-ext-artifacts/*' \
+            -x '.claude/*'
 
-      - name: Attach zip to release
+      - name: Build & sign Firefox xpi (AMO listed channel)
+        env:
+          WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
+          WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+        run: |
+          # `web-ext sign --channel=listed` uploads to AMO and downloads
+          # the signed xpi on success. The ignoreFiles list lives in
+          # web-ext-config.mjs and is picked up automatically.
+          npx --yes web-ext@8 sign \
+            --source-dir . \
+            --artifacts-dir dist \
+            --channel=listed
+
+      - name: Attach zip and xpi to release
         uses: softprops/action-gh-release@v3
         with:
-          files: dist/*.zip
+          files: |
+            dist/*.zip
+            dist/*.xpi
           generate_release_notes: true

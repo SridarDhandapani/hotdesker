@@ -77,13 +77,6 @@ function colorForLocationId(id) {
   return COLOR_PALETTE[h % COLOR_PALETTE.length];
 }
 
-// ---- escape ---------------------------------------------------------------
-function escapeHtml(s) {
-  return String(s ?? "").replace(/[&<>"']/g, (c) =>
-    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])
-  );
-}
-
 // ---- state ----------------------------------------------------------------
 
 const state = {
@@ -135,7 +128,7 @@ function renderCalendar() {
   $("nextMonth").disabled = nextMonthFirst > max;
 
   const cal = $("calendar");
-  cal.innerHTML = "";
+  cal.replaceChildren();
 
   const dows = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   for (const dow of dows) {
@@ -243,7 +236,7 @@ function updateSummary() {
 
 function renderLegend() {
   const legend = $("legend");
-  legend.innerHTML = "";
+  legend.replaceChildren();
   // Group dates by location so we can show e.g. "30 Churchill Place (3 days)"
   const grouped = new Map();
   for (const [iso, locId] of state.assignments) {
@@ -303,7 +296,7 @@ function openDetails(booking) {
   );
   $("detailsSubtitle").textContent = dateLabel;
   const grid = $("detailsGrid");
-  grid.innerHTML = "";
+  grid.replaceChildren();
   const rows = [
     ["Location", booking.locationName || "—"],
     ["Address", booking.locationAddress || "—"],
@@ -364,7 +357,7 @@ function openConfirm(bookings) {
   $("confirmMsg").textContent =
     n === 1 ? "Cancel this booking?" : `Cancel ${n} bookings?`;
   const list = $("confirmList");
-  list.innerHTML = "";
+  list.replaceChildren();
   const sorted = [...bookings].sort((a, b) => a.dateISO.localeCompare(b.dateISO));
   for (const b of sorted) {
     const li = document.createElement("li");
@@ -514,7 +507,7 @@ function closeCityPicker() {
 
 function renderCityList(searchTerm) {
   const list = $("cityList");
-  list.innerHTML = "";
+  list.replaceChildren();
   // null = still loading (initial state on first open).
   if (state.cities === null) {
     const empty = document.createElement("div");
@@ -698,7 +691,7 @@ $("removeAssignBtn").addEventListener("click", () => {
 
 function renderLocationList() {
   const list = $("locationList");
-  list.innerHTML = "";
+  list.replaceChildren();
 
   const term = state.searchTerm.trim().toLowerCase();
   const matches = (loc) =>
@@ -906,9 +899,11 @@ async function checkReadiness() {
   if (!onWework) {
     showNotReady({
       title: "Open WeWork to get started",
-      bodyHtml:
-        "This extension works alongside the WeWork member portal. Open " +
-        "<strong>members.wework.com</strong>, sign in, and try again.",
+      body: [
+        "This extension works alongside the WeWork member portal. Open ",
+        { strong: "members.wework.com" },
+        ", sign in, and try again.",
+      ],
       showOpenBtn: true,
     });
     return false;
@@ -924,9 +919,12 @@ async function checkReadiness() {
     // finished loading after a fresh sign-in/redirect.
     showNotReady({
       title: "Page still loading",
-      bodyHtml:
-        "Couldn't reach the WeWork tab yet. Wait for the page to finish " +
-        "loading, then click <strong>Check again</strong>.",
+      body: [
+        "Couldn't reach the WeWork tab yet. Wait for the page to finish ",
+        "loading, then click ",
+        { strong: "Check again" },
+        ".",
+      ],
       showOpenBtn: false,
     });
     return false;
@@ -935,9 +933,13 @@ async function checkReadiness() {
   if (resp && resp.ok === false && /no auth/i.test(resp.error || "")) {
     showNotReady({
       title: "Sign in to WeWork",
-      bodyHtml:
-        "We couldn't find a valid login token on this page. Please sign in " +
-        "to <strong>members.wework.com</strong> and click <strong>Check again</strong>.",
+      body: [
+        "We couldn't find a valid login token on this page. Please sign in to ",
+        { strong: "members.wework.com" },
+        " and click ",
+        { strong: "Check again" },
+        ".",
+      ],
       showOpenBtn: false,
     });
     return false;
@@ -982,10 +984,13 @@ async function checkReadiness() {
   } catch (e) {
     showNotReady({
       title: "Couldn't load locations",
-      bodyHtml:
-        "Tried to fetch the WeWork locations list but the page didn't " +
-        "respond. Refresh <strong>members.wework.com</strong> and click " +
-        "<strong>Check again</strong>.",
+      body: [
+        "Tried to fetch the WeWork locations list but the page didn't respond. Refresh ",
+        { strong: "members.wework.com" },
+        " and click ",
+        { strong: "Check again" },
+        ".",
+      ],
       showOpenBtn: false,
     });
     return false;
@@ -993,11 +998,13 @@ async function checkReadiness() {
   if (!locResp?.ok) {
     showNotReady({
       title: "Couldn't load locations",
-      bodyHtml:
-        "WeWork's location API returned an error: <code>" +
-        escapeHtml(locResp?.error || "unknown") +
-        "</code>. Try refreshing the WeWork tab and clicking " +
-        "<strong>Check again</strong>.",
+      body: [
+        "WeWork's location API returned an error: ",
+        { code: locResp?.error || "unknown" },
+        ". Try refreshing the WeWork tab and clicking ",
+        { strong: "Check again" },
+        ".",
+      ],
       showOpenBtn: false,
     });
     return false;
@@ -1007,9 +1014,10 @@ async function checkReadiness() {
   if (state.locations.length === 0) {
     showNotReady({
       title: "No locations found",
-      bodyHtml:
-        "WeWork's API returned an empty locations list. This usually clears " +
+      body: [
+        "WeWork's API returned an empty locations list. This usually clears ",
         "up after refreshing the page.",
+      ],
       showOpenBtn: false,
     });
     return false;
@@ -1017,12 +1025,30 @@ async function checkReadiness() {
   return true;
 }
 
-function showNotReady({ title, bodyHtml, showOpenBtn }) {
+// `body` is an array of plain strings and `{strong: "..."}` / `{code: "..."}`
+// objects. Anything dynamic (e.g. an API error message) becomes a textContent
+// child of <code> or <strong> — never interpolated into HTML — so there's no
+// way for an upstream error string to be parsed as markup.
+function showNotReady({ title, body, showOpenBtn }) {
   $("checkingScreen").hidden = true;
   $("mainPanel").hidden = true;
   $("notReadyScreen").hidden = false;
   $("notReadyTitle").textContent = title;
-  $("notReadyBody").innerHTML = bodyHtml;
+  const target = $("notReadyBody");
+  target.replaceChildren();
+  for (const part of body) {
+    if (typeof part === "string") {
+      target.appendChild(document.createTextNode(part));
+    } else if (part.strong != null) {
+      const el = document.createElement("strong");
+      el.textContent = part.strong;
+      target.appendChild(el);
+    } else if (part.code != null) {
+      const el = document.createElement("code");
+      el.textContent = part.code;
+      target.appendChild(el);
+    }
+  }
   $("openWeworkBtn").hidden = !showOpenBtn;
 }
 
@@ -1087,7 +1113,7 @@ function appendStatus(msg, kind = "") {
 }
 
 function clearStatus() {
-  $("status").innerHTML = "";
+  $("status").replaceChildren();
 }
 
 // ---- run ------------------------------------------------------------------

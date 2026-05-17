@@ -1,7 +1,8 @@
 # Hotdesker
 
-A Chrome extension that lets you bulk-book hot desks for the week (or month)
-ahead in a single click. Built for WeWork's member portal.
+A browser extension (Chrome and Firefox) that lets you bulk-book hot
+desks for the week (or month) ahead in a single click. Built for
+WeWork's member portal.
 
 The official WeWork web app and mobile app only let you book one day at a
 time. If you book five days a week you click through the same forms five
@@ -45,14 +46,26 @@ extension reads it from the live page rather than asking you to paste it.
 
 ## Install
 
-[Install from the Chrome Web Store](https://chromewebstore.google.com/detail/hotdesker/hobjmhjbmhgocoffijifcenldiciclpc).
+**Chrome:** [Install from the Chrome Web Store](https://chromewebstore.google.com/detail/hotdesker/hobjmhjbmhgocoffijifcenldiciclpc).
+
+**Firefox:** Install from [Mozilla Add-ons](https://addons.mozilla.org/firefox/addon/hotdesker/)
+(listing pending review for the first release; check the GitHub
+Releases page for a signed `.xpi` in the meantime).
 
 Or, to run from source:
 
+**Chrome:**
 1. Clone or download this folder.
 2. Visit `chrome://extensions`.
 3. Enable Developer Mode.
 4. Click "Load unpacked" and pick the folder.
+
+**Firefox:**
+1. Clone or download this folder.
+2. Run `npx web-ext run` from the folder — launches a temporary
+   Firefox profile with the extension loaded.
+3. Or, to load it manually: visit `about:debugging#/runtime/this-firefox`,
+   click "Load Temporary Add-on…", and pick `manifest.json`.
 
 ## Privacy
 

@@ -6,14 +6,15 @@ gotchas, and conventions that aren't obvious from the code alone.
 
 ## What this is
 
-A Chrome extension (Manifest V3) that bulk-books hot desks via the
-WeWork member portal's API. The extension reads the user's auth token
-from the WeWork tab's localStorage and replays the same API calls the
-WeWork web app makes — `members.wework.com` only, nothing else.
+A browser extension (Manifest V3, Chrome + Firefox) that bulk-books hot
+desks via the WeWork member portal's API. The extension reads the user's
+auth token from the WeWork tab's localStorage and replays the same API
+calls the WeWork web app makes — `members.wework.com` only, nothing else.
 
-Distributed as an unpacked extension during development; intended for
-the Chrome Web Store eventually. Renamed from "WeWork Desk Booker" to
-"Hotdesker" at v4.0.0 to dodge trademark issues.
+Distributed via the Chrome Web Store and Mozilla Add-ons (AMO). Firefox
+support landed in v4.1.0; the same source tree ships to both stores
+unchanged. Renamed from "WeWork Desk Booker" to "Hotdesker" at v4.0.0 to
+dodge trademark issues.
 
 ## Architecture
 
@@ -151,6 +152,48 @@ Persisted to `chrome.storage.local` under key `hotdeskerConfig`:
 There's a one-time migration from the old `weworkAutobookConfig` key
 in `popup.js` `migrateStorage()`. Safe to leave indefinitely.
 
+## Cross-browser (Chrome + Firefox)
+
+We ship one source tree to both stores. The interesting bits:
+
+- **Single combined `manifest.json`.** The `background` block carries
+  both `service_worker` (which Chrome reads) and `scripts` +
+  `type: "module"` (which Firefox 121+ reads — and Firefox prefers
+  `scripts` when both keys are present). `browser_specific_settings.gecko`
+  declares the AMO id and Firefox minimum version; Chrome ignores it.
+  No per-target manifest split, no build step. Both stores consume the
+  same zipped payload.
+- **`strict_min_version` is `140.0`.** The lower bound is the Firefox
+  version that introduced `browser_specific_settings.gecko.data_collection_permissions`
+  (mandatory for new AMO submissions from Nov 2025). Don't lower this
+  unless you're also willing to drop that field — older Firefox would
+  silently ignore it and AMO would warn.
+- **`chrome.*` everywhere on purpose.** Firefox aliases the `chrome.*`
+  namespace to its WebExtensions APIs and supports both the
+  callback-style and Promise-style signatures. There is no functional
+  reason to swap to `browser.*` or add `webextension-polyfill` — the
+  polyfill is largely vestigial in 2026 and would force a build step we
+  don't want. Don't change this.
+- **The gecko id (`hotdesker@sridar.dev`) is immutable.** AMO keys
+  updates and reviews off it. Renaming it would mean an entirely new
+  AMO listing.
+- **Background script works in both.** The `self.addEventListener("install", …)`
+  call is harmless in a Firefox event page (the event never fires there;
+  the listener is dead code). It runs in a Chrome MV3 service worker as
+  intended.
+- **Firefox event-page caveat.** If you ever put real logic in
+  `background/background.js`, remember the Firefox event page is a full
+  DOM context (window, DOMParser available) while the Chrome service
+  worker is not. Write to the SW's narrower surface to keep both happy.
+- **Release signing.** The release workflow uses `web-ext sign --channel=listed`
+  to push to AMO. It needs two repo secrets — `AMO_JWT_ISSUER` and
+  `AMO_JWT_SECRET` — generated at
+  https://addons.mozilla.org/developers/addon/api/key/.
+- **`web-ext-config.mjs`** keeps the Chrome zip and Firefox xpi
+  exclusion lists in sync (CLAUDE.md, docs/, AMO_LISTING.md, etc.).
+  When adding a new dev-only file, update *both* this file *and* the
+  matching `-x` list in `release.yml`.
+
 ## Subtle things that bit me during development
 
 ### `display: flex` overrides `[hidden]`
@@ -248,15 +291,22 @@ look much more like cross-origin code.
 ## Release process
 
 1. Update `CHANGELOG.md`.
-2. Bump `manifest.json` version. Subtitle in `popup.html` matches.
+2. Bump `manifest.json` version. The popup's subtitle is rendered from
+   `chrome.runtime.getManifest().version` at runtime, so no second edit.
 3. Tag: `git tag v4.x.y && git push --tags`.
 4. The release workflow (`.github/workflows/release.yml`) verifies tag
-   matches manifest, runs syntax checks, builds a clean zip excluding
-   dev files (README, LICENSE, .github, etc.) and attaches it to a
+   matches manifest, runs syntax checks, runs `web-ext lint`, builds
+   the Chrome zip, then runs `web-ext sign --channel=listed` to push
+   the signed XPI to AMO. Both `.zip` and `.xpi` are attached to the
    GitHub Release.
-5. For Webstore updates: download that zip and upload to the Webstore
-   developer dashboard. The `WEBSTORE_LISTING.md` has the description
-   copy.
+5. For Chrome Web Store updates: download the `.zip` from the Release
+   and upload to the Webstore developer dashboard. The
+   `WEBSTORE_LISTING.md` has the description copy.
+6. For AMO: `web-ext sign --channel=listed` publishes the new version
+   automatically. For the **first** AMO submission you must use the
+   AMO Developer Hub UI manually (it needs the listing description,
+   screenshots, categories — see `AMO_LISTING.md`). Subsequent versions
+   land via CI.
 
 Versioning is loose semver: patch for fixes, minor for features,
 major for breaking storage-shape changes or naming. The 3.x → 4.x bump
@@ -294,7 +344,9 @@ was for the rename (storage key changed; auto-migrates).
 | `icons/logo-header.svg`          | Logo for dark backgrounds (popup header)  |
 | `icons/logo-on-light.svg`        | Logo for light backgrounds (not-ready)    |
 | `docs/`                          | GitHub Pages content (privacy + landing)  |
-| `WEBSTORE_LISTING.md`            | Listing copy ready to paste               |
+| `WEBSTORE_LISTING.md`            | Chrome Web Store listing copy             |
+| `AMO_LISTING.md`                 | Mozilla Add-ons listing copy              |
 | `SCREENSHOTS.md`                 | Screenshot specs and shot list            |
 | `CHANGELOG.md`                   | Release history                           |
-| `.github/workflows/release.yml`  | Tag-triggered zip build + release         |
+| `web-ext-config.mjs`             | Shared ignoreFiles for web-ext            |
+| `.github/workflows/release.yml`  | Tag-triggered zip + xpi build + release   |

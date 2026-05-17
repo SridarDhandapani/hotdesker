@@ -2,6 +2,34 @@
 
 All notable changes to Hotdesker.
 
+## [4.1.0] — 2026-05-16
+
+### Added
+
+- **Firefox support.** Hotdesker now ships as a Firefox add-on
+  alongside the Chrome extension. The same source tree builds both:
+  the manifest carries `background.scripts` for Firefox event-page
+  loading alongside `background.service_worker` for Chrome (Firefox
+  121+ uses `scripts` when both are present), and a
+  `browser_specific_settings.gecko` block declares the AMO add-on id
+  and minimum Firefox version. No source code changes were required —
+  every `chrome.*` API the extension uses is aliased verbatim by
+  Firefox.
+- Release workflow now also lints with `web-ext`, builds and signs an
+  XPI via AMO's listed channel, and attaches it to the GitHub
+  Release alongside the existing Chrome `.zip`.
+- `web-ext-config.mjs` keeps the Chrome zip and Firefox xpi
+  exclusion lists in lockstep.
+
+### Changed
+
+- Replaced every `innerHTML` assignment with `replaceChildren()` for
+  container clears and `createElement` + `textContent` for the one
+  templated case (`showNotReady`). Removes AMO's
+  `UNSAFE_VAR_ASSIGNMENT` warning ahead of human review and makes the
+  flow safe-by-construction — user-controlled strings can no longer
+  reach an HTML parser.
+
 ## [4.0.4] — 2026-04-30
 
 ### Fixed

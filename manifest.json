@@ -2,14 +2,25 @@
   "manifest_version": 3,
   "name": "Hotdesker",
   "short_name": "Hotdesker",
-  "version": "4.0.4",
+  "version": "4.1.0",
   "description": "Bulk-book hot desks for the week ahead, in one click. Works with WeWork.",
   "permissions": ["storage"],
   "host_permissions": [
     "https://members.wework.com/*"
   ],
   "background": {
-    "service_worker": "background/background.js"
+    "service_worker": "background/background.js",
+    "scripts": ["background/background.js"],
+    "type": "module"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "hotdesker@sridar.dev",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
   },
   "action": {
     "default_popup": "popup/popup.html",
