@@ -72,13 +72,13 @@ https://github.com/SridarDhandapani/hotdesker/issues
 ## Homepage URL
 
 ```
-https://sridardhandapani.github.io/hotdesker/
+https://sridar.dev/hotdesker/
 ```
 
 ## Privacy policy URL
 
 ```
-https://sridardhandapani.github.io/hotdesker/privacy/
+https://sridar.dev/hotdesker/privacy/
 ```
 
 ## License
