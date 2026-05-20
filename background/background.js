@@ -8,3 +8,14 @@ self.addEventListener("install", () => {
   // No-op; nothing to set up.
 });
 
+// Open the user guide once, on first install. Skipped on `update` so
+// existing users aren't pestered every patch release, and on
+// `chrome_update` / `shared_module_update` for the same reason. Firefox
+// reports `reason === "install"` for fresh installs too, so this works
+// on both stores without a per-target branch.
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === "install") {
+    chrome.tabs.create({ url: chrome.runtime.getURL("guide/index.html") });
+  }
+});
+

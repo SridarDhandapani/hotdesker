@@ -32,6 +32,33 @@ header .logo {
   font-size: 11px;
   opacity: 0.7;
 }
+.help-btn {
+  margin-left: auto;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: transparent;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+.help-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+.help-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
 
 /* ---- main / sections ----------------------------------------------- */
 main { padding: 14px 16px; }

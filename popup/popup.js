@@ -1076,6 +1076,10 @@ $("recheckBtn").addEventListener("click", () => {
   loadConfig();
 });
 
+$("helpBtn").addEventListener("click", () => {
+  chrome.tabs.create({ url: chrome.runtime.getURL("guide/index.html") });
+});
+
 async function loadExistingBookings() {
   try {
     const tab = await getActiveTab();

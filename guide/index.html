@@ -1,0 +1,747 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hotdesker — user guide</title>
+  <meta name="description" content="How to plan, book, and cancel desks with Hotdesker." />
+  <meta name="theme-color" content="#f3eee3" />
+  <script src="guide.js"></script>
+  <link rel="icon" type="image/svg+xml" href="../icons/icon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" />
+  <style>
+    :root {
+      --bg: #f3eee3;
+      --ink: #1a1612;
+      --muted: #6f6658;
+      --hair: rgba(26, 22, 18, 0.18);
+      --accent: #a8442a;
+      --kbd-bg: rgba(26, 22, 18, 0.06);
+      --code-bg: rgba(26, 22, 18, 0.05);
+      --grain-blend: multiply;
+      --grain-opacity: 0.14;
+      --grain-img: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.09 0 0 0 0 0.07 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      --serif: 'Newsreader', 'Iowan Old Style', Georgia, serif;
+      --display: 'Instrument Serif', 'Newsreader', Georgia, serif;
+      --mono: 'JetBrains Mono', 'SFMono-Regular', ui-monospace, Menlo, monospace;
+      color-scheme: light;
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #15110d;
+      --ink: #ede5d4;
+      --muted: #8d8478;
+      --hair: rgba(237, 229, 212, 0.18);
+      --accent: #d97a5e;
+      --kbd-bg: rgba(237, 229, 212, 0.08);
+      --code-bg: rgba(237, 229, 212, 0.06);
+      --grain-blend: screen;
+      --grain-opacity: 0.09;
+      --grain-img: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.93 0 0 0 0 0.9 0 0 0 0 0.83 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      color-scheme: dark;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #15110d;
+        --ink: #ede5d4;
+        --muted: #8d8478;
+        --hair: rgba(237, 229, 212, 0.18);
+        --accent: #d97a5e;
+        --kbd-bg: rgba(237, 229, 212, 0.08);
+        --code-bg: rgba(237, 229, 212, 0.06);
+        --grain-blend: screen;
+        --grain-opacity: 0.09;
+        --grain-img: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.93 0 0 0 0 0.9 0 0 0 0 0.83 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        color-scheme: dark;
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--serif);
+      font-size: 18px;
+      line-height: 1.6;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+      transition: background-color 320ms ease, color 320ms ease;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: var(--grain-img);
+      opacity: var(--grain-opacity);
+      pointer-events: none;
+      z-index: 1;
+      mix-blend-mode: var(--grain-blend);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body { transition: none; }
+    }
+
+    .page {
+      position: relative;
+      z-index: 2;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 28px 44px 60px;
+    }
+
+    /* ─── masthead ─────────────────────────────────── */
+    .masthead {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--ink);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .masthead .lhs { display: flex; gap: 18px; flex-wrap: wrap; }
+    .masthead .star { color: var(--accent); }
+    .masthead .rhs {
+      display: flex;
+      align-items: baseline;
+      gap: 18px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .masthead .edition { color: var(--muted); }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .theme-toggle button {
+      background: none;
+      border: 0;
+      padding: 0;
+      margin: 0;
+      font: inherit;
+      letter-spacing: inherit;
+      text-transform: inherit;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color 200ms ease;
+    }
+    .theme-toggle button:hover,
+    .theme-toggle button:focus-visible { color: var(--ink); }
+    .theme-toggle button:focus-visible { outline: 1px dashed var(--accent); outline-offset: 3px; }
+    .theme-toggle button[aria-pressed="true"] { color: var(--accent); }
+    .theme-toggle .sep { color: var(--muted); opacity: 0.45; user-select: none; }
+
+    /* ─── intro ────────────────────────────────────── */
+    .intro {
+      margin: 48px 0 84px;
+    }
+    .intro h1 {
+      font-family: var(--display);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 72px;
+      line-height: 0.95;
+      letter-spacing: -0.01em;
+      margin-bottom: 28px;
+    }
+    .intro h1 em {
+      color: var(--accent);
+      font-style: italic;
+    }
+    .intro .lede {
+      max-width: 600px;
+      font-size: 21px;
+      line-height: 1.5;
+      color: var(--ink);
+    }
+    .intro .lede + .lede { margin-top: 18px; }
+    .intro em { font-style: italic; color: var(--accent); }
+    .intro a, .prose a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px solid var(--hair);
+      transition: border-color 200ms ease, color 200ms ease;
+    }
+    .intro a:hover, .prose a:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    /* ─── sections ─────────────────────────────────── */
+    section {
+      padding: 36px 0 14px;
+      border-top: 1px solid var(--ink);
+    }
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 32px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    .section-head .sigil {
+      color: var(--accent);
+      font-family: var(--display);
+      font-size: 26px;
+      font-style: italic;
+      text-transform: none;
+      letter-spacing: 0;
+      line-height: 1;
+      transform: translateY(2px);
+    }
+    .section-head .count {
+      margin-left: auto;
+      color: var(--muted);
+    }
+    .section-head .num {
+      color: var(--muted);
+    }
+
+    .prose h2 {
+      font-family: var(--display);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 38px;
+      line-height: 1.05;
+      margin-bottom: 18px;
+      letter-spacing: -0.005em;
+    }
+    .prose h3 {
+      font-family: var(--display);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 22px;
+      line-height: 1.2;
+      margin: 26px 0 8px;
+      color: var(--ink);
+    }
+    .prose p {
+      margin-bottom: 16px;
+      color: var(--ink);
+    }
+    .prose p.subtle {
+      color: var(--muted);
+      font-size: 17px;
+    }
+    .prose ul, .prose ol {
+      margin: 0 0 16px 26px;
+    }
+    .prose li {
+      margin-bottom: 8px;
+    }
+    .prose li::marker {
+      color: var(--accent);
+    }
+    .prose strong {
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .prose code {
+      font-family: var(--mono);
+      font-size: 0.86em;
+      background: var(--code-bg);
+      padding: 1px 6px;
+      border-radius: 3px;
+      color: var(--ink);
+    }
+
+    /* keyboard / UI labels */
+    .ui {
+      font-family: var(--mono);
+      font-size: 0.82em;
+      background: var(--kbd-bg);
+      padding: 1px 7px;
+      border-radius: 3px;
+      letter-spacing: 0.02em;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    /* ─── illustrations ────────────────────────────── */
+    .shot {
+      margin: 26px 0 32px;
+    }
+    .shot img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--hair);
+      transition: border-color 320ms ease;
+    }
+    :root[data-theme="dark"] .shot img { border-color: transparent; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .shot img { border-color: transparent; }
+    }
+    .shot figcaption {
+      margin-top: 12px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      gap: 14px;
+      align-items: baseline;
+    }
+    .shot figcaption .lbl {
+      color: var(--accent);
+    }
+
+    /* ─── tour steps (numbered rows) ───────────────── */
+    .steps {
+      display: grid;
+      grid-template-columns: 56px minmax(0, 1fr);
+      gap: 18px 24px;
+      margin: 8px 0 20px;
+    }
+    .steps .num {
+      font-family: var(--display);
+      font-style: italic;
+      font-size: 36px;
+      line-height: 1;
+      color: var(--accent);
+    }
+    .steps .step {
+      padding-top: 4px;
+    }
+    .steps .step h3 {
+      margin: 0 0 4px;
+      font-size: 22px;
+    }
+    .steps .step p {
+      margin: 0;
+      color: var(--ink);
+    }
+
+    /* ─── details (troubleshooting collapsibles) ───── */
+    details {
+      border-top: 1px dashed var(--hair);
+      padding: 14px 0;
+    }
+    details:first-of-type { border-top: 1px dashed var(--hair); }
+    details:last-of-type { border-bottom: 1px dashed var(--hair); }
+    details > summary {
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      font-family: var(--serif);
+      font-size: 19px;
+      line-height: 1.4;
+      color: var(--ink);
+      transition: color 200ms ease;
+    }
+    details > summary::-webkit-details-marker { display: none; }
+    details > summary::before {
+      content: "▸";
+      color: var(--accent);
+      font-size: 12px;
+      transition: transform 220ms ease;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+    details[open] > summary::before {
+      transform: rotate(90deg) translateX(-1px);
+    }
+    details > summary:hover { color: var(--accent); }
+    details[open] > summary { margin-bottom: 8px; }
+    details .answer {
+      padding-left: 24px;
+      color: var(--ink);
+    }
+    details .answer p { margin-bottom: 10px; }
+    details .answer p:last-child { margin-bottom: 0; }
+
+    /* ─── note callouts ────────────────────────────── */
+    .note {
+      margin: 22px 0;
+      padding: 14px 18px;
+      border-left: 2px solid var(--accent);
+      background: var(--code-bg);
+      font-size: 17px;
+      color: var(--ink);
+    }
+    .note .lbl {
+      display: block;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .note p { margin: 0; }
+
+    /* ─── footer ───────────────────────────────────── */
+    footer {
+      margin-top: 80px;
+      padding-top: 18px;
+      border-top: 1px solid var(--ink);
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    footer a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px solid var(--hair);
+      transition: color 200ms ease, border-color 200ms ease;
+    }
+    footer a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+    footer em {
+      font-family: var(--display);
+      font-style: italic;
+      font-size: 14px;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--accent);
+    }
+
+    /* ─── reveal ───────────────────────────────────── */
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal { animation: rise 900ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+    .d1 { animation-delay: 40ms; }
+    .d2 { animation-delay: 180ms; }
+    .d3 { animation-delay: 340ms; }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { animation: none !important; }
+    }
+
+    /* ─── mobile ───────────────────────────────────── */
+    @media (max-width: 720px) {
+      .page { padding: 22px 22px 50px; }
+      .masthead { font-size: 10px; gap: 10px; flex-wrap: wrap; row-gap: 10px; }
+      .masthead .rhs { gap: 14px; width: 100%; justify-content: flex-start; }
+      .theme-toggle { gap: 6px; margin-left: auto; }
+      .intro { margin: 28px 0 56px; }
+      .intro h1 { font-size: 48px; }
+      .intro .lede { font-size: 19px; }
+      .prose h2 { font-size: 30px; }
+      .prose h3 { font-size: 19px; }
+      .steps { grid-template-columns: 36px 1fr; gap: 12px 16px; }
+      .steps .num { font-size: 28px; }
+      .steps .step h3 { font-size: 19px; }
+      section { padding: 28px 0 10px; }
+      .section-head { gap: 12px; }
+      footer { flex-direction: column; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header class="masthead reveal d1">
+      <div class="lhs">
+        <span>Hotdesker</span>
+        <span class="star">✦</span>
+        <span>User guide</span>
+      </div>
+      <div class="rhs">
+        <span class="edition" id="versionLabel">v—</span>
+        <span class="theme-toggle" role="group" aria-label="Theme">
+          <button type="button" data-set="auto">Auto</button>
+          <span class="sep" aria-hidden="true">·</span>
+          <button type="button" data-set="light">Light</button>
+          <span class="sep" aria-hidden="true">·</span>
+          <button type="button" data-set="dark">Dark</button>
+        </span>
+      </div>
+    </header>
+
+    <section class="intro reveal d2" style="border-top:0; padding-top: 0;">
+      <h1>Welcome.<br/><em>Thanks for installing</em></h1>
+      <p class="lede">
+        Hotdesker bulk-books WeWork hot desks straight from your browser. Tap days on a calendar, pick a location for each, click <em>Start</em> — and watch the bookings land one by one.
+      </p>
+      <p class="lede">
+        This page covers everything the popup doesn't have room to explain: the booking horizon, what dry-run does, how to cancel without leaving the calendar, and what to do when the not-ready screen appears. Read top-to-bottom or jump straight to <a href="#troubleshooting">troubleshooting</a>.
+      </p>
+    </section>
+
+    <section class="prose reveal d3" id="tour">
+      <div class="section-head">
+        <span class="sigil">§</span>
+        <span class="num">01</span>
+        <span>The 90-second tour</span>
+        <span class="count">three steps</span>
+      </div>
+
+      <div class="steps">
+        <div class="num">i</div>
+        <div class="step">
+          <h3>Sign in to WeWork.</h3>
+          <p>Open <code>members.wework.com</code> in a tab and sign in. Hotdesker borrows your existing session — it never asks for your credentials and won't work without an active WeWork tab.</p>
+        </div>
+
+        <div class="num">ii</div>
+        <div class="step">
+          <h3>Click the Hotdesker icon.</h3>
+          <p>The popup opens. If everything's in order, you'll see a calendar. If not, the not-ready screen will tell you what's missing — usually that the WeWork tab isn't open or you're not signed in yet.</p>
+        </div>
+
+        <div class="num">iii</div>
+        <div class="step">
+          <h3>Plan, then <span class="ui">Start booking</span>.</h3>
+          <p>Tap a day, choose a location for it, repeat. Different days can have different buildings. When you're happy, untick <strong>Dry run</strong> and hit <span class="ui">Start booking</span>. The progress bar fills as each day lands.</p>
+        </div>
+      </div>
+
+      <div class="note">
+        <span class="lbl">First time?</span>
+        <p>Leave <strong>Dry run</strong> ticked for your first attempt. It runs the same flow but stops short of the final booking call, so you can confirm everything lines up without committing any desks.</p>
+      </div>
+    </section>
+
+    <section class="prose" id="planning">
+      <div class="section-head">
+        <span class="sigil">§</span>
+        <span class="num">02</span>
+        <span>Planning your week</span>
+      </div>
+
+      <h2>The calendar is the plan.</h2>
+      <p>
+        Each day is a cell. Tap one to open the location picker; the day takes on the location's colour and shows a coloured dot. Tap it again to change the location, or use <span class="ui">Remove this date</span> in the picker footer to clear it.
+      </p>
+      <p>
+        Days that are already booked (the ones you've previously secured via WeWork or a previous Hotdesker run) show in amber. Tapping them opens the booking details instead of the picker — they're locked from re-assignment because WeWork only allows one booking per day.
+      </p>
+
+      <figure class="shot">
+        <img src="screenshots/01-headliner.png" width="640" height="400" alt="The Hotdesker popup with several days highlighted on a calendar and a Start booking button at the bottom." />
+        <figcaption><span class="lbl">No. 01</span><span>Plan first. Book later.</span></figcaption>
+      </figure>
+
+      <h3>The 30-day horizon</h3>
+      <p>
+        WeWork only accepts bookings up to <strong>30 days ahead</strong>. The calendar greys out anything further out — that's a WeWork limit, not Hotdesker's, and there's no way around it. If you want a desk for a specific date that's still over the horizon, check back closer to the day.
+      </p>
+    </section>
+
+    <section class="prose" id="favorites">
+      <div class="section-head">
+        <span class="sigil">§</span>
+        <span class="num">03</span>
+        <span>Favouriting locations</span>
+      </div>
+
+      <h2>Star your usuals.</h2>
+      <p>
+        The heart next to each location in the picker is live: tap it to add or remove a favourite. Favourites pin to the top of the list, so the building you actually book is one tap away.
+      </p>
+      <p>
+        Favourites mirror the WeWork app — anything you starred there shows up here, and anything you star here is visible in the WeWork app and the web portal. There's no separate Hotdesker list to maintain.
+      </p>
+
+      <figure class="shot">
+        <img src="screenshots/02-favorites.png" width="640" height="400" alt="The location picker showing favourited buildings pinned at the top, with red hearts next to them." />
+        <figcaption><span class="lbl">No. 02</span><span>One source of truth.</span></figcaption>
+      </figure>
+    </section>
+
+    <section class="prose" id="running">
+      <div class="section-head">
+        <span class="sigil">§</span>
+        <span class="num">04</span>
+        <span>Running a booking job</span>
+      </div>
+
+      <h2>Watch it work.</h2>
+      <p>
+        Hit <span class="ui">Start booking</span> and the popup shifts into work mode. A progress bar appears above the buttons, the status pane fills with a per-day log, and each day's outcome — booked, skipped, errored — shows in colour as it happens.
+      </p>
+      <p>
+        You can leave the popup open or close it. The job keeps running in the background; reopening the popup picks the log back up. Once every day is processed, the progress bar turns green and the calendar refreshes to show the new bookings.
+      </p>
+
+      <figure class="shot">
+        <img src="screenshots/03-progress.png" width="640" height="400" alt="The popup mid-booking, showing a 3 of 4 progress bar and a status log listing each day's outcome." />
+        <figcaption><span class="lbl">No. 03</span><span>Per-day, live.</span></figcaption>
+      </figure>
+
+      <h3>Stopping mid-run</h3>
+      <p>
+        The <span class="ui">Stop</span> button cancels the queue, but it can't interrupt a fetch that's already in flight. If you stop mid-booking, the day currently being requested will usually complete (and a desk may get booked for it) — every <em>subsequent</em> day is skipped. In practice, Stop is near-instant; just don't rely on it to halt a booking that's already at the network.
+      </p>
+    </section>
+
+    <section class="prose" id="dry-run">
+      <div class="section-head">
+        <span class="sigil">§</span>
+        <span class="num">05</span>
+        <span>Dry-run mode</span>
+      </div>
+
+      <h2>Practise without booking.</h2>
+      <p>
+        With <strong>Dry run</strong> ticked, Hotdesker calls everything <em>except</em> the final booking endpoint. It looks up the location, fetches the inventory, validates the quote — and stops one step short of actually reserving the desk.
+      </p>
+      <p>
+        Use it to:
+      </p>
+      <ul>
+        <li>Sanity-check a new city for the first time.</li>
+        <li>Confirm the assignments and dates are exactly what you want.</li>
+        <li>Spot pricing or availability errors before committing.</li>
+      </ul>
+      <p class="subtle">
+        Dry runs leave the log behind for inspection. If everything looks right, untick the box and re-run.
+      </p>
+    </section>
+
+    <section class="prose" id="cancelling">
+      <div class="section-head">
+        <span class="sigil">§</span>
+        <span class="num">06</span>
+        <span>Cancelling bookings</span>
+      </div>
+
+      <h2>One day, or several.</h2>
+      <p>
+        To cancel a <strong>single</strong> day, tap its amber cell on the calendar. The details modal opens with a <span class="ui">Cancel this booking…</span> button.
+      </p>
+      <p>
+        To cancel <strong>several at once</strong>, tap <span class="ui">Select to cancel bookings…</span> below the calendar. The popup switches into cancel mode — amber days become tappable, a tick appears next to each selection, and a bar at the top shows how many you've picked. <span class="ui">Cancel selected…</span> confirms the lot.
+      </p>
+
+      <figure class="shot">
+        <img src="screenshots/04-cancel.png" width="640" height="400" alt="The popup in cancel mode, with two booked days selected and a Cancel selected button visible." />
+        <figcaption><span class="lbl">No. 04</span><span>Bulk cancel.</span></figcaption>
+      </figure>
+
+      <p class="subtle">
+        Cancellations are final — there's no Undo. You'll see a confirmation dialog listing the days about to be cancelled before anything actually happens.
+      </p>
+    </section>
+
+    <section class="prose" id="cities">
+      <div class="section-head">
+        <span class="sigil">§</span>
+        <span class="num">07</span>
+        <span>Switching cities</span>
+      </div>
+
+      <h2>City label, above the calendar.</h2>
+      <p>
+        On first open, Hotdesker picks a city from your most recent upcoming booking. If you have none, it defaults to London. Tap the city label above the calendar to pick another — the location list refreshes to match.
+      </p>
+      <p>
+        Manually choosing a city <em>sticks</em> across sessions. To go back to the auto-detect behaviour, open the city picker and tap <span class="ui">Use auto-detect</span> at the bottom.
+      </p>
+    </section>
+
+    <section class="prose" id="troubleshooting">
+      <div class="section-head">
+        <span class="sigil">§</span>
+        <span class="num">08</span>
+        <span>Troubleshooting</span>
+      </div>
+
+      <h2>When things look wrong.</h2>
+      <p class="subtle">
+        Most issues come down to the WeWork tab not being open, or your sign-in having expired. Below are the rest.
+      </p>
+
+      <details>
+        <summary>The popup says <em>"Open WeWork to get started."</em></summary>
+        <div class="answer">
+          <p>Hotdesker only runs when you have a <code>members.wework.com</code> tab open <em>and</em> you're signed in there. Click <span class="ui">Open WeWork</span> on that screen (or open the site yourself), sign in, then hit <span class="ui">Check again</span>.</p>
+          <p>If you're already signed in and still seeing this, the auth token might be too stale to read. Try refreshing the WeWork tab once.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>I can't tap days more than a month out.</summary>
+        <div class="answer">
+          <p>WeWork caps bookings at 30 days from today. Days beyond that are greyed out and unclickable. There's no setting that changes this — it's a server-side limit on the booking API itself.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="ui">Stop</span> didn't halt the run instantly.</summary>
+        <div class="answer">
+          <p>Stop cancels the <em>queue</em> of days waiting to be booked, but it can't interrupt a request that's already mid-flight. The day currently being processed will finish — and may book a desk — before the cancellation takes effect. Every subsequent day is skipped.</p>
+          <p>If you're worried about an in-flight booking, the calendar will refresh after the run finishes; cancel it from there.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>My city isn't in the picker.</summary>
+        <div class="answer">
+          <p>The city list comes live from WeWork's global locations API. If a city is missing, it's missing from WeWork too — the extension doesn't filter the list. Try searching the city name in the picker (partial matches work) or check the WeWork web app to confirm the city exists there.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>A booking failed with an HTTP error.</summary>
+        <div class="answer">
+          <p>The status pane logs the exact response from WeWork. Common causes:</p>
+          <ul>
+            <li><strong>400</strong> — invalid input (a stale location id, or a date the API rejects). Refresh the popup and try again.</li>
+            <li><strong>401 / 403</strong> — your auth token expired. Refresh the WeWork tab to renew it.</li>
+            <li><strong>409</strong> — that day already has a booking. Hotdesker won't double-book, but if a race happens between two clients, you'll see this. The calendar should now show the amber cell.</li>
+            <li><strong>5xx</strong> — WeWork's API is having a moment. Wait a minute and retry the remaining days.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details>
+        <summary>I get a <em>"locations: HTTP 4xx"</em> message.</summary>
+        <div class="answer">
+          <p>Hotdesker reads two identifiers from your WeWork session: your user UUID and an account UUID. The account UUID lives in browser storage and is occasionally laid out differently after a WeWork frontend update. If it can't be found, the locations API rejects the call with a 4xx.</p>
+          <p>Refresh the WeWork tab to give the storage a chance to rehydrate. If the error persists across refreshes, please <a href="https://github.com/SridarDhandapani/hotdesker/issues">open an issue on GitHub</a> with the HTTP code shown — that's the first thing to fix.</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="prose" id="privacy">
+      <div class="section-head">
+        <span class="sigil">§</span>
+        <span class="num">09</span>
+        <span>Privacy &amp; what this accesses</span>
+      </div>
+
+      <p>
+        Hotdesker talks to exactly one server: <code>members.wework.com</code>. No analytics, no telemetry, no third-party scripts. Your assignments live in memory while the popup is open; your dry-run preference and city choice live in your browser's local extension storage. Nothing leaves your machine for anywhere except WeWork itself.
+      </p>
+      <p>
+        Full privacy policy: <a href="https://sridar.dev/hotdesker/privacy/">sridar.dev/hotdesker/privacy</a>.
+      </p>
+    </section>
+
+    <footer>
+      <span class="colophon">
+        Made with <em>care</em> &amp; deadlines —
+        <a href="https://github.com/SridarDhandapani/hotdesker">source on GitHub</a>
+      </span>
+      <span id="footerVersion">v—</span>
+    </footer>
+
+  </main>
+</body>
+</html>

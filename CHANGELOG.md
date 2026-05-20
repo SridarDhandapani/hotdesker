@@ -2,6 +2,19 @@
 
 All notable changes to Hotdesker.
 
+## [4.2.0] — 2026-05-20
+
+### Added
+
+- **Built-in user guide.** A new help page (`guide/index.html`) ships
+  inside the extension. It opens automatically in a new tab on first
+  install, and is reachable any time via the `?` button in the popup
+  header. Covers the 90-second tour, the 30-day booking horizon,
+  dry-run mode, cancel mode, switching cities, and troubleshooting the
+  common HTTP errors. No new permissions and nothing leaves the
+  machine — the guide is served from `chrome-extension://` so it works
+  offline.
+
 ## [4.1.0] — 2026-05-16
 
 ### Added
