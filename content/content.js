@@ -145,7 +145,7 @@
   //
   // The booking flow turns out to be FOUR steps, not three:
   //   1. GET /spaces/get-spaces        — list bookable spaces for a location/date
-  //   2. GET /common-booking/inventory-details?spaceId=<uuid>&useInventoryUuid=true
+  //   2. GET /common-booking/inventory-details?spaceGuid=<uuid>&useInventoryUuid=true
   //                                     — get pricing/SpaceID for one specific space
   //   3. POST /common-booking/quote   — validate
   //   4. POST /common-booking/        — actually book
@@ -230,15 +230,23 @@
   const UUID_RE_LOCAL =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+  // WeWork renamed the id query params on this endpoint in late Aug 2026
+  // (propertyId→propertyGuid, spaceId→spaceGuid, floorId→floorGuid) and
+  // added applicationType. The old names are silently ignored — the
+  // server still returns 200, but with an empty shell
+  // `{kubeSpaceId:"", kubePropertyId:"", inventoryUuid:""}`. So an
+  // "empty inventory" failure here is the symptom to check first if
+  // WeWork changes the API again.
   async function fetchInventory({ auth, locationId, dateISO, spaceUuid }) {
     const offset = encodeURIComponent(localOffsetForDate(dateISO));
     const dateParam = encodeURIComponent(formatMMDDYYYY(dateISO));
     const url =
       `https://members.wework.com/workplaceone/api/common-booking/inventory-details` +
-      `?propertyType=2&propertyId=${locationId}&spaceType=0` +
+      `?propertyType=2&propertyGuid=${locationId}&spaceType=0` +
       `&startDate=${dateParam}&endDate=&duration=0&roomTypeFilter=` +
-      `&locationOffset=${offset}&capacity=0&limit=0&offset=0&floorId=0` +
-      `&spaceId=${spaceUuid}&useInventoryUuid=true&platFormType=1`;
+      `&locationOffset=${offset}&capacity=0&limit=0&offset=0&floorGuid=` +
+      `&spaceGuid=${spaceUuid}&useInventoryUuid=true&platFormType=1` +
+      `&applicationType=WorkplaceOne`;
     const res = await fetch(url, {
       method: "GET",
       credentials: "include",

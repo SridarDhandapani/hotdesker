@@ -2,6 +2,24 @@
 
 All notable changes to Hotdesker.
 
+## [4.2.1] — 2026-09-02
+
+### Fixed
+
+- **Booking failed with "no usable space in inventory response".**
+  WeWork renamed the id query parameters on the inventory-details
+  endpoint (`propertyId` → `propertyGuid`, `spaceId` → `spaceGuid`,
+  `floorId` → `floorGuid`) and added `applicationType`. The old names
+  were silently ignored and the server answered with an empty shell,
+  so every booking attempt stopped at step 2. The request now uses the
+  new parameter names.
+- **Favorites not shown, and starring a location errored with
+  "Favorite is already added".** The favorites list no longer carries
+  the numeric `Hmy` row id the extension used as the favorite's id, so
+  every entry was dropped and the popup showed no favorites. The
+  favorite id is now read from the entry's `Id` field (a UUID), which is
+  what the WeWork web app sends when removing a favorite.
+
 ## [4.2.0] — 2026-05-20
 
 ### Added

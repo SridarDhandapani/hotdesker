@@ -136,9 +136,13 @@ window.WW_LOCATIONS = (() => {
   // point at a specific reservable; those don't apply to desk-booking. We
   // filter to SpaceType 0 (desks).
   //
-  // The unfavorite endpoint wants the favorite's numeric `Hmy` (Yardi row id,
-  // System.Int64) as `Id` in the body — NOT the entry's UUID `Id` field.
-  // Sending the UUID gets a 400 with a JSON conversion error.
+  // The unfavorite endpoint wants the favorite's id as `Id` in the body.
+  // Since late Aug 2026 that is the entry's UUID `Id` field — the WeWork
+  // web app maps `FavouriteId = entry.Id` and sends it back verbatim. Before
+  // that the API wanted the numeric `Hmy` (Yardi row id) and the list no
+  // longer carries `Hmy` at all. We still fall back to `Hmy` if it ever
+  // reappears so a rollback on WeWork's side doesn't silently empty the
+  // favorites map again.
   async function fetchFavorites(authHeaders) {
     try {
       const res = await fetch(FAVORITES_URL, {
@@ -160,7 +164,7 @@ window.WW_LOCATIONS = (() => {
         const spaceType = f.SpaceType ?? f.spaceType;
         if (spaceType !== 0) continue;
         const locationId = f.LocationId || f.locationId;
-        const favoriteId = f.Hmy ?? f.hmy;
+        const favoriteId = f.Id ?? f.id ?? f.Hmy ?? f.hmy;
         if (locationId && favoriteId != null) {
           favorites.set(locationId, favoriteId);
         }
@@ -208,7 +212,8 @@ window.WW_LOCATIONS = (() => {
         if (data?.status === false) {
           return { ok: false, error: data.message || "rejected" };
         }
-        // Response includes FavoriteId at the top level (e.g. 164389).
+        // Response includes FavoriteId at the top level (historically a
+        // numeric like 164389; the list entries now carry a UUID `Id`).
         const favoriteId = data?.FavoriteId ?? data?.favoriteId;
         return { ok: true, favoriteId, data };
       } catch {

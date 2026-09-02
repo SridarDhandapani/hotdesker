@@ -76,10 +76,16 @@ The booking flow is **four** calls per day, not three:
 
 1. `GET /workplaceone/api/spaces/get-spaces?locationUUIDs=…&date=YYYY-MM-DD`
    — discover bookable space UUIDs at a location
-2. `GET /workplaceone/api/common-booking/inventory-details?propertyId=…&spaceId=…`
+2. `GET /workplaceone/api/common-booking/inventory-details?propertyGuid=…&spaceGuid=…&applicationType=WorkplaceOne`
    — get pricing + the all-important `kubeSpaceId` (this is the
    `SpaceID` the booking endpoint wants, NOT `inventory.id` which is a
-   placeholder)
+   placeholder). The id params were renamed from `propertyId` /
+   `spaceId` / `floorId` to the `…Guid` forms in late Aug 2026. The
+   server ignores unknown params and answers 200 with an empty shell
+   (`{kubeSpaceId:"", kubePropertyId:"", inventoryUuid:""}`), so a
+   "no usable space in inventory response" failure with that body
+   means the params drifted again — check the WeWork bundle's
+   `GetInventoryDetailData` for the current names.
 3. `POST /workplaceone/api/common-booking/quote` — validate
 4. `POST /workplaceone/api/common-booking/` — actually book
 
@@ -105,11 +111,14 @@ response). The successful response is the literal string `true`.
 Favorites: there's a single endpoint
 (`/workplaceone/api/recent-and-favorite/mark-as-favorite-location`)
 for both add and remove. The body's `IsDeleted` boolean toggles which.
-Removes also need the favorite's numeric id as `Id` in the body — and
-the field to read from the favorites list is **`Hmy`** (Yardi row id,
-System.Int64), NOT the list entry's own `Id` field which is a UUID.
-Sending the UUID gets a 400 with a JSON-to-Int64 conversion error.
-The add response returns the same numeric as `FavoriteId`.
+Removes also need the favorite's id as `Id` in the body. Since late
+Aug 2026 that is the list entry's own UUID `Id` field (the web app's
+`MarkFavorite` sends `Id: entry.Id`). Before that it was the numeric
+**`Hmy`** (Yardi row id, System.Int64) and sending the UUID got a 400;
+the list no longer carries `Hmy`. `fetchFavorites` reads `Id` first and
+falls back to `Hmy`. If the favorites map ever comes back empty while
+the API says "Favorite is already added", the id field has moved again.
+The add response returns the new favorite's id as `FavoriteId`.
 
 ## Auth
 
@@ -139,7 +148,8 @@ self-explanatory. Worth knowing:
   loaded from the upcoming-bookings API. Drives the amber day rendering
   and the locked-cell behaviour.
 - `state.favorites` is `Map<locationId, favoriteId>`. The favoriteId
-  (numeric) is needed to send unfavorite requests.
+  (a UUID string; numeric before Aug 2026) is needed to send unfavorite
+  requests.
 - `state.currentCity` is `{name, latitude, longitude}`. Coordinates may
   be `null` when auto-detected from a booking.
 - `state.cities` is `null` until first city-picker open; lazy-loaded.
