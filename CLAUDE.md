@@ -302,7 +302,11 @@ look much more like cross-origin code.
 
 1. Update `CHANGELOG.md`.
 2. Bump `manifest.json` version. The popup's subtitle is rendered from
-   `chrome.runtime.getManifest().version` at runtime, so no second edit.
+   `chrome.runtime.getManifest().version` at runtime, and the GitHub
+   Pages site (`docs/`) fetches `manifest.json` from the `main` branch
+   via raw.githubusercontent.com on load, so no second edit anywhere.
+   The site badges show `v—` if that fetch fails (offline, or the raw
+   CDN's ~5 minute cache hasn't caught up yet).
 3. Tag: `git tag v4.x.y && git push --tags`.
 4. The release workflow (`.github/workflows/release.yml`) verifies tag
    matches manifest, runs syntax checks, runs `web-ext lint`, builds

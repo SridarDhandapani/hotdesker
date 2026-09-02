@@ -303,7 +303,7 @@
         <span>Privacy</span>
       </div>
       <div class="rhs">
-        <span class="edition">v4.1.0 · MMXXVI</span>
+        <span class="edition"><span data-version>v—</span> · MMXXVI</span>
         <span class="theme-toggle" role="group" aria-label="Theme">
           <button type="button" data-set="auto">Auto</button>
           <span class="sep" aria-hidden="true">·</span>
@@ -410,6 +410,22 @@
       });
       mql.addEventListener ? mql.addEventListener('change', paint) : mql.addListener(paint);
       paint();
+    })();
+  </script>
+  <script>
+    // Version badges read manifest.json from the main branch at load time
+    // so the site never advertises a stale release. raw.githubusercontent
+    // sends Access-Control-Allow-Origin: * and caches for ~5 minutes.
+    (function () {
+      var els = document.querySelectorAll('[data-version]');
+      if (!els.length) return;
+      fetch('https://raw.githubusercontent.com/SridarDhandapani/hotdesker/main/manifest.json', { cache: 'no-cache' })
+        .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+        .then(function (m) {
+          if (!m || typeof m.version !== 'string') return;
+          els.forEach(function (el) { el.textContent = 'v' + m.version; });
+        })
+        .catch(function () { /* leave the placeholder; nothing to fix here */ });
     })();
   </script>
 </body>
