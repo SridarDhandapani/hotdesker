@@ -24,7 +24,8 @@ for each, click Start.
   for sanity-checking your day picks before committing.
 - **Live progress.** Bar + per-day status as the run proceeds. Stop button
   works mid-run.
-- **Existing bookings are visible** as amber dots on the calendar; they
+- **Existing bookings are visible** tinted in each location's colour,
+  with a legend under the calendar naming the location; they
   can't be re-assigned (no double-booking).
 
 ## How it works

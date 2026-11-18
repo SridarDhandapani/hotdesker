@@ -2,6 +2,25 @@
 
 All notable changes to Hotdesker.
 
+## [4.3.0] — 2026-11-18
+
+### Added
+
+- **Booked days are coloured by location, with a legend.** Each
+  already-booked day is tinted in its location's colour instead of a
+  single amber, and a "Booked:" legend under the calendar names each
+  location and its day count for the month on screen. No more hovering
+  to see where a booking is.
+
+### Changed
+
+- **Location colours no longer clash.** Colours were picked from a hash
+  of the location id, so two offices could share one. They are now
+  assigned so that every location on screen gets its own colour, and a
+  location keeps the same colour whether a day is booked or only
+  planned. The palette drops near-duplicate hues and the near-black
+  that tinted to the same grey as an empty day.
+
 ## [4.2.1] — 2026-09-02
 
 ### Fixed

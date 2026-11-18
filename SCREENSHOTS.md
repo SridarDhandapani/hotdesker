@@ -48,7 +48,7 @@ actually doing what I think" question.
 
 ### 4. Cancel mode
 
-- Calendar with several amber (booked) days visible.
+- Calendar with several booked days visible, tinted by location, with the Booked legend.
 - A couple of them showing the red checkmark + outline of cancel-mode
   selection.
 - The orange "N selected" bar visible at the bottom.

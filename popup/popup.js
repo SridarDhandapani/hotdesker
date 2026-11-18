@@ -52,29 +52,47 @@ function maxBookableDate() {
 }
 
 // ---- color palette --------------------------------------------------------
-// A small fixed palette, colors picked deterministically per location id.
-// Distinct enough to read at 6px while staying restrained.
+// A small fixed palette of hues that stay distinguishable both as a 6px dot
+// and as a light cell tint. No near-black or grey: those tint to the same
+// grey as an empty cell.
 const COLOR_PALETTE = [
-  "#0f1419", // near-black
-  "#3b82f6", // blue
+  "#2563eb", // blue
   "#16a34a", // green
-  "#a855f7", // purple
-  "#f97316", // orange
+  "#9333ea", // purple
+  "#ea580c", // orange
   "#0891b2", // teal
   "#dc2626", // red
   "#65a30d", // olive
-  "#9333ea", // violet
-  "#ea580c", // amber
-  "#0369a1", // sky
-  "#be185d", // pink
+  "#db2777", // pink
+  "#92400e", // brown
+  "#ca8a04", // gold
 ];
+
+// Colours are handed out per popup session rather than straight from the
+// hash: a bare hash mod 10 puts two of four offices on the same colour
+// fairly often, which makes the calendar unreadable. The hash still picks
+// each location's preferred colour, so it's usually the same one across
+// sessions; on a clash the location takes the next free colour instead.
+const locationColors = new Map();
 function colorForLocationId(id) {
-  // Stable hash → palette index.
+  const cached = locationColors.get(id);
+  if (cached) return cached;
   let h = 0;
   for (let i = 0; i < id.length; i++) {
     h = (h * 31 + id.charCodeAt(i)) >>> 0;
   }
-  return COLOR_PALETTE[h % COLOR_PALETTE.length];
+  const used = new Set(locationColors.values());
+  const n = COLOR_PALETTE.length;
+  let color = COLOR_PALETTE[h % n];
+  for (let i = 0; i < n; i++) {
+    const c = COLOR_PALETTE[(h + i) % n];
+    if (!used.has(c)) {
+      color = c;
+      break;
+    }
+  }
+  locationColors.set(id, color);
+  return color;
 }
 
 // ---- state ----------------------------------------------------------------
@@ -142,6 +160,9 @@ function renderCalendar() {
   const startCol = (firstOfMonth.getDay() + 6) % 7; // Mon-first
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const todayISO = todayLocalISO();
+  // Map<colorKey, {name, color, count}> for the booked legend; scoped to
+  // the visible month so the legend matches what's on screen.
+  const bookedInMonth = new Map();
 
   for (let i = 0; i < startCol; i++) {
     const blank = document.createElement("div");
@@ -169,7 +190,21 @@ function renderCalendar() {
     if (iso === todayISO) cell.classList.add("today");
 
     if (existingBooking) {
+      // Same hash as assignments, so a location reads as one colour whether
+      // it's booked or just planned. Fall back to the name if the bookings
+      // API ever omits the id.
+      const key = existingBooking.locationId || existingBooking.locationName;
+      const color = colorForLocationId(key || "?");
       cell.classList.add("booked");
+      cell.style.setProperty("--cell-color", color);
+      const entry = bookedInMonth.get(key);
+      if (entry) entry.count++;
+      else
+        bookedInMonth.set(key, {
+          name: existingBooking.locationName || "Unknown location",
+          color,
+          count: 1,
+        });
       cell.title = `Already booked at ${existingBooking.locationName}${
         existingBooking.spaceName ? ` (${existingBooking.spaceName})` : ""
       } — #${existingBooking.bookingId}`;
@@ -222,6 +257,33 @@ function renderCalendar() {
       }
     }
     cal.appendChild(cell);
+  }
+  renderBookedLegend(bookedInMonth);
+}
+
+function renderBookedLegend(bookedInMonth) {
+  const legend = $("bookedLegend");
+  legend.replaceChildren();
+  legend.hidden = bookedInMonth.size === 0;
+  if (bookedInMonth.size === 0) return;
+  const label = document.createElement("span");
+  label.className = "legend-label";
+  label.textContent = "Booked:";
+  legend.appendChild(label);
+  const entries = Array.from(bookedInMonth.values()).sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
+  for (const { name, color, count } of entries) {
+    const item = document.createElement("span");
+    item.className = "legend-item";
+    const swatch = document.createElement("span");
+    swatch.className = "legend-swatch";
+    swatch.style.setProperty("--cell-color", color);
+    item.appendChild(swatch);
+    const txt = document.createElement("span");
+    txt.textContent = `${name} (${count})`;
+    item.appendChild(txt);
+    legend.appendChild(item);
   }
 }
 

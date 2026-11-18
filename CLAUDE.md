@@ -145,7 +145,8 @@ self-explanatory. Worth knowing:
 - `state.assignments` is `Map<dateISO, locationId>` — the user's
   not-yet-booked plan. **Not persisted**: clears on every popup open.
 - `state.bookedDates` is `Map<dateISO, booking>` — already-booked days
-  loaded from the upcoming-bookings API. Drives the amber day rendering
+  loaded from the upcoming-bookings API. Drives the booked-day rendering
+  (tinted in the location's colour, plus the per-month `#bookedLegend`)
   and the locked-cell behaviour.
 - `state.favorites` is `Map<locationId, favoriteId>`. The favoriteId
   (a UUID string; numeric before Aug 2026) is needed to send unfavorite
@@ -221,7 +222,7 @@ companion rule. If you add a new modal, remember this.
 over the `state.bookedDates` value at render time, but bookings might
 arrive afterwards. Click handlers must re-check `state.bookedDates` at
 *click* time, not render time, otherwise tapping a freshly-arrived
-amber day still opens the picker. See the click handler attachment in
+booked day still opens the picker. See the click handler attachment in
 `renderCalendar()` for the pattern.
 
 ### `node --check` doesn't catch ESM-specific errors

@@ -529,7 +529,7 @@
         Each day is a cell. Tap one to open the location picker; the day takes on the location's colour and shows a coloured dot. Tap it again to change the location, or use <span class="ui">Remove this date</span> in the picker footer to clear it.
       </p>
       <p>
-        Days that are already booked (the ones you've previously secured via WeWork or a previous Hotdesker run) show in amber. Tapping them opens the booking details instead of the picker — they're locked from re-assignment because WeWork only allows one booking per day.
+        Days that are already booked (the ones you've previously secured via WeWork or a previous Hotdesker run) show as a filled tint in their location's colour, with a <span class="ui">Booked:</span> legend under the calendar naming each location for the month on screen. Tapping them opens the booking details instead of the picker — they're locked from re-assignment because WeWork only allows one booking per day.
       </p>
 
       <figure class="shot">
@@ -623,10 +623,10 @@
 
       <h2>One day, or several.</h2>
       <p>
-        To cancel a <strong>single</strong> day, tap its amber cell on the calendar. The details modal opens with a <span class="ui">Cancel this booking…</span> button.
+        To cancel a <strong>single</strong> day, tap its booked (tinted) cell on the calendar. The details modal opens with a <span class="ui">Cancel this booking…</span> button.
       </p>
       <p>
-        To cancel <strong>several at once</strong>, tap <span class="ui">Select to cancel bookings…</span> below the calendar. The popup switches into cancel mode — amber days become tappable, a tick appears next to each selection, and a bar at the top shows how many you've picked. <span class="ui">Cancel selected…</span> confirms the lot.
+        To cancel <strong>several at once</strong>, tap <span class="ui">Select to cancel bookings…</span> below the calendar. The popup switches into cancel mode — booked days become tappable, a tick appears next to each selection, and a bar at the top shows how many you've picked. <span class="ui">Cancel selected…</span> confirms the lot.
       </p>
 
       <figure class="shot">
@@ -704,7 +704,7 @@
           <ul>
             <li><strong>400</strong> — invalid input (a stale location id, or a date the API rejects). Refresh the popup and try again.</li>
             <li><strong>401 / 403</strong> — your auth token expired. Refresh the WeWork tab to renew it.</li>
-            <li><strong>409</strong> — that day already has a booking. Hotdesker won't double-book, but if a race happens between two clients, you'll see this. The calendar should now show the amber cell.</li>
+            <li><strong>409</strong> — that day already has a booking. Hotdesker won't double-book, but if a race happens between two clients, you'll see this. The calendar should now show that day as booked.</li>
             <li><strong>5xx</strong> — WeWork's API is having a moment. Wait a minute and retry the remaining days.</li>
           </ul>
         </div>

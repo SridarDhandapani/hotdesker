@@ -261,21 +261,25 @@ main[hidden] { display: none; }
   border-radius: 50%;
   background: var(--cell-color, #0f1419);
 }
-/* Already-booked (from upcoming-bookings API) */
+/* Already-booked (from upcoming-bookings API). Filled tint of the
+   location's colour, vs. the white + border of a not-yet-booked day. */
 .cal-day.booked {
-  background: #fff4e5;
-  color: #b87b00;
+  --cell-color: #b87b00;
+  background: color-mix(in srgb, var(--cell-color) 16%, #fff);
+  color: var(--cell-color);
   cursor: not-allowed;
   font-weight: 600;
 }
-.cal-day.booked:hover { background: #fff4e5; }
+.cal-day.booked:hover {
+  background: color-mix(in srgb, var(--cell-color) 16%, #fff);
+}
 .cal-day.booked .cell-dot {
   position: absolute;
   bottom: 3px;
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #b87b00;
+  background: var(--cell-color);
 }
 
 /* ---- legend ------------------------------------------------------- */
@@ -298,6 +302,21 @@ main[hidden] { display: none; }
   border-radius: 50%;
   flex: 0 0 8px;
 }
+.legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex: 0 0 10px;
+  background: color-mix(in srgb, var(--cell-color) 16%, #fff);
+  border: 1.5px solid var(--cell-color);
+  box-sizing: border-box;
+}
+.legend-label {
+  font-weight: 600;
+  color: #555;
+}
+.booked-legend { margin-top: 8px; }
+.booked-legend[hidden] { display: none; }
 .legend-empty {
   font-size: 11px;
   color: #999;
